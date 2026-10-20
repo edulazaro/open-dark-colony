@@ -3,6 +3,9 @@ import { defineConfig } from 'vite';
 import { gameDataMiddleware, dataDir } from './gamedata.mjs';
 
 export default defineConfig({
+  // rutas relativas: la versión compilada funciona igual en la raíz o en
+  // https://<usuario>.github.io/open-dark-colony/
+  base: './',
   server: { port: 5173 },
   plugins: [
     {

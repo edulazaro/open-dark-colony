@@ -1,5 +1,7 @@
 // Arranque: carga de datos originales, menús y bucle principal.
-import { fetchBin, fetchImage, fetchText } from './data/vfs';
+import { fetchBin, fetchImage, fetchText, serverHasData, useLocalFiles, usingLocalFiles } from './data/vfs';
+import { clearCachedFiles, loadCachedFiles, saveCachedFiles } from './data/local';
+import { DataPicker } from './ui/data-picker';
 import { parseSpr } from './data/spr';
 import { AnimDB } from './render/anims';
 import { SpriteCache } from './render/gfx';
@@ -87,7 +89,21 @@ window.addEventListener('keydown', (e) => {
 });
 window.addEventListener('keyup', (e) => screen?.keyUp?.(e.key));
 
+/** Sin servidor con los datos (GitHub Pages): los de la visita anterior o los que elija el usuario. */
+async function localData(): Promise<void> {
+  let files = await loadCachedFiles();
+  if (!files) {
+    const picker = new DataPicker(ctx, canvas);
+    screen = picker;
+    files = await picker.done;
+    screen = null;
+    void saveCachedFiles(files);
+  }
+  useLocalFiles(files);
+}
+
 async function boot(): Promise<void> {
+  if (!(await serverHasData())) await localData();
   let intro: HTMLImageElement | null = null;
   try {
     intro = await fetchImage('intrface/intro.gif');
@@ -154,6 +170,7 @@ async function boot(): Promise<void> {
     const m = new MenuScreen(ctx, menuAssets);
     m.onStart = (setup) => void start(setup);
     m.hasSave = () => loadFromStorage() !== null;
+    if (usingLocalFiles()) m.onForgetData = () => void clearCachedFiles().then(() => location.reload());
     m.onLoad = () => {
       const data = loadFromStorage();
       if (data) void start(data.setup, () => restore(data, rules, anims));

@@ -12,7 +12,21 @@ Los formatos se obtuvieron por ingeniería inversa del ejecutable `DC.EXE` con
 especificación está en [`docs/FORMATS.md`](docs/FORMATS.md) y el proceso en
 [`docs/REVERSE-ENGINEERING.md`](docs/REVERSE-ENGINEERING.md) (ambos en inglés).
 
-## Requisitos
+## Jugar en el navegador
+
+**https://edulazaro.github.io/open-dark-colony/**
+
+La versión publicada no lleva datos del juego. Al abrirla pide la carpeta de tu instalación de
+Dark Colony (la que contiene `GAMESTAT/`, `SPRITES/`, `SCENARIO/`…) o un ZIP con ella; también
+se puede soltar en la ventana. Los ficheros se leen en el navegador, **no se suben a ningún
+sitio**, y se guardan en su IndexedDB (unos 90 MB) para no pedirlos en la siguiente visita.
+La opción «Cambiar datos del juego» del menú los borra.
+
+Se publica sola con [`.github/workflows/pages.yml`](.github/workflows/pages.yml) en cada push
+a `main` (compila, pasa los tests y sube `dist/`). Para activarlo la primera vez:
+*Settings → Pages → Build and deployment → Source: GitHub Actions*.
+
+## Requisitos (para ejecutarlo en local)
 
 - Node.js 20 o superior.
 - Una instalación de Dark Colony (carpeta con `DC.EXE`, `GAMESTAT/`, `SPRITES/`, `ANIMATE/`,
@@ -140,7 +154,8 @@ python tools/re/rea_client.py d:0x4230ac
 ## Estructura
 
 ```
-src/data/     parsers de los formatos originales (spr, fin, map/bts, scn, stats, vfs)
+src/data/     parsers de los formatos originales (spr, fin, map/bts, scn, stats) y origen de
+              los datos: servidor /dc/ o ficheros elegidos en el navegador (vfs, local)
 src/render/   paletas, caché de sprites, animaciones, terreno y render del mundo
 src/game/     reglas, simulación (world.ts), A*, IA, carga de escenarios, disparadores de misión
 src/ui/       HUD (game-screen.ts), menús, layout de interfaz, fuentes bitmap

@@ -1,5 +1,5 @@
 // Menús: principal, escaramuza y campañas, dibujados sobre los fondos originales.
-import { fetchBin, fetchText, listDir } from '../data/vfs';
+import { fetchBin, fetchText, fileUrl, listDir } from '../data/vfs';
 import { parseSpr } from '../data/spr';
 import { frameToCanvas, Palette } from '../render/gfx';
 import { parseScn } from '../data/scn';
@@ -61,6 +61,8 @@ export class MenuScreen {
   /** cargar la partida guardada (si existe) */
   onLoad?: () => void;
   hasSave?: () => boolean;
+  /** sólo con datos elegidos en el navegador: olvidarlos y volver a pedirlos */
+  onForgetData?: () => void;
 
   constructor(private ctx: CanvasRenderingContext2D, private a: MenuAssets) {
     this.main();
@@ -83,6 +85,7 @@ export class MenuScreen {
       { label: 'Campaña Taar (alienígenas)', action: () => void this.campaign('alien') },
       { label: 'Enciclopedia', action: () => void this.encyclopedia() },
       { label: 'Controles', action: () => this.help() },
+      ...(this.onForgetData ? [{ label: 'Cambiar datos del juego', action: () => this.onForgetData?.() }] : []),
     ];
   }
 
@@ -110,8 +113,13 @@ export class MenuScreen {
       const frames = spr.frames.map((f) => ({ c: frameToCanvas(f, pal), x: f.x, y: f.y }));
       this.ency = { name, frames, text: txt.split(/\r?\n/).map((l) => l.replace(/~\d/g, '').trimEnd()), t0: performance.now() };
       this.audio?.pause();
-      this.audio = new Audio('/dc/' + path + '.wav');
-      void this.audio.play().catch(() => undefined);
+      this.audio = null;
+      try {
+        this.audio = new Audio(fileUrl(path + '.wav'));
+        void this.audio.play().catch(() => undefined);
+      } catch {
+        /* entrada sin narración */
+      }
     } catch {
       return;
     }

@@ -2,3 +2,4 @@ node_modules/
 dist/
 .re/
 *.log
+CLAUDE.md
