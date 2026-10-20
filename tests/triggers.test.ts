@@ -326,7 +326,8 @@ const text = (rel: string) => fs.readFileSync(resolveGameFile(root, rel), 'latin
 const exists = (rel: string) => !!resolveGameFile(root, rel);
 
 describe.skipIf(!have)('scripts del juego original', () => {
-  const dirs = ['HUMAN', 'ALIEN', 'TEST', 'MPLAYER'];
+  // el cuerpo de un describe saltado se ejecuta igualmente al recoger los tests
+  const dirs = have ? ['HUMAN', 'ALIEN', 'TEST', 'MPLAYER'] : [];
   const files = dirs.flatMap((d) =>
     fs
       .readdirSync(resolveGameFile(root, `SCENARIO/${d}`))
