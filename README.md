@@ -10,7 +10,7 @@ misiones.
 Los formatos se obtuvieron por ingeniería inversa del ejecutable `DC.EXE` con
 [REA](https://github.com/morluto/rea) (MCP de ingeniería inversa) sobre Ghidra; la
 especificación está en [`docs/FORMATS.md`](docs/FORMATS.md) y el proceso en
-[`docs/INGENIERIA-INVERSA.md`](docs/INGENIERIA-INVERSA.md).
+[`docs/REVERSE-ENGINEERING.md`](docs/REVERSE-ENGINEERING.md) (ambos en inglés).
 
 ## Requisitos
 
@@ -21,14 +21,41 @@ especificación está en [`docs/FORMATS.md`](docs/FORMATS.md) y el proceso en
 
 ## Uso
 
+Bash (Linux, macOS, Git Bash):
+
 ```bash
 npm install
 npm run dev                        # http://localhost:5173
-DC_DATA=/ruta/a/DCOLONY npm run dev   # en PowerShell: $env:DC_DATA="D:\DCOLONY"; npm run dev
+DC_DATA=/ruta/a/DCOLONY npm run dev
 
-npm run build && npm start         # versión compilada en http://localhost:8080 (PORT para cambiarlo)
+npm run build && npm start         # versión compilada en http://localhost:8080
+PORT=3000 npm start                # otro puerto
 npm test                           # valida los parsers contra todos los ficheros del juego
 npm run typecheck
+```
+
+PowerShell (Windows):
+
+```powershell
+npm install
+npm run dev                                    # http://localhost:5173
+
+# El juego instalado en otra carpeta (vale para esta ventana de PowerShell)
+$env:DC_DATA = "D:\Juegos\DCOLONY"
+npm run dev
+
+# Versión compilada (Windows PowerShell 5.1 no admite &&)
+npm run build; if ($LASTEXITCODE -eq 0) { npm start }   # http://localhost:8080
+$env:PORT = "3000"; npm start                  # otro puerto
+
+npm test
+npm run typecheck
+
+# Abrir directamente una escaramuza en el navegador
+Start-Process "http://localhost:5173/?map=scenario/mplayer/d2play01.scn&race=1"
+
+# Volver a los valores por defecto
+Remove-Item Env:DC_DATA, Env:PORT -ErrorAction SilentlyContinue
 ```
 
 Los tests que necesitan los ficheros originales se saltan si no encuentran la instalación; el
@@ -41,9 +68,22 @@ Atajo para pruebas: `http://localhost:5173/?map=scenario/mplayer/d2play01.scn&ra
 `bash tools/re/setup-rea.sh` instala en `.re/` (≈1,7 GB, fuera del repositorio) REA, Ghidra
 12.1.4, un JDK 21 y un Node 22 portátil, sin tocar el Node del sistema. Después,
 `python tools/re/rea_client.py` decompila funciones de `DC.EXE` (ver
-[`docs/INGENIERIA-INVERSA.md`](docs/INGENIERIA-INVERSA.md)). La salida de Ghidra se queda en
+[`docs/REVERSE-ENGINEERING.md`](docs/REVERSE-ENGINEERING.md)). La salida de Ghidra se queda en
 `.re/out/` y no se publica: el repositorio sólo contiene la descripción de los formatos y un
 motor escrito desde cero.
+
+Desde PowerShell, llama al `bash` de Git explícitamente (el `bash` a secas puede ser el de WSL):
+
+```powershell
+& "C:\Program Files\Git\bin\bash.exe" tools/re/setup-rea.sh
+
+# Decompilar el cargador de .FIN y las funciones que llama
+python tools/re/rea_client.py d:0x4230ac c:0x4230ac   # salida en .re\out\decomp\
+
+# Otro DC.EXE
+$env:DC_EXE = "D:\Juegos\DCOLONY\DC.EXE"
+python tools/re/rea_client.py d:0x4230ac
+```
 
 ## Qué incluye
 
