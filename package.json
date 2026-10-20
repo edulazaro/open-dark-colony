@@ -1,0 +1,21 @@
+{
+  "name": "open-dark-colony",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Clon de Dark Colony (1997) que lee los datos originales del juego. Formatos obtenidos por ingeniería inversa con REA + Ghidra.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "start": "node server.mjs",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.43",
+    "typescript": "~5.6.3",
+    "vite": "~6.0.11",
+    "vitest": "~2.1.9"
+  }
+}
